@@ -2,7 +2,7 @@ import 'package:dot_furniture/screens/cart_page.dart';
 import 'package:dot_furniture/screens/profile_page.dart';
 import 'package:dot_furniture/screens/wishlist_page.dart';
 import 'package:flutter/material.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'store_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -33,6 +33,8 @@ class _HomePageState extends State<HomePage> {
           setState(() {});
         },
         type: BottomNavigationBarType.fixed,
+        // selectedFontSize: 20,
+        selectedLabelStyle: GoogleFonts.shizuru(),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
