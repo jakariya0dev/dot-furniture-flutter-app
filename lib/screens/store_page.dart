@@ -1,5 +1,6 @@
 import 'package:dot_furniture/screens/details_page.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class StorePage extends StatefulWidget {
   const StorePage({Key? key}) : super(key: key);
@@ -17,8 +18,23 @@ class _StorePageState extends State<StorePage> {
     'Mirror',
     'Table'
   ];
-
+  List<String> collectionName = [
+    'top',
+    'almirah',
+    'alna',
+    'chair',
+    'mirror',
+    'table'
+  ];
   int selectedIndex = 0;
+  List items = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData('top');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +106,8 @@ class _StorePageState extends State<StorePage> {
                         shape: const StadiumBorder(),
                         onPressed: () {
                           selectedIndex = index;
+                          items.clear();
+                          getData(collectionName[index]);
                           setState(() {});
                         },
                         child: Text(
@@ -99,87 +117,151 @@ class _StorePageState extends State<StorePage> {
                   }),
             ),
             Expanded(
-              child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DetailsPage()));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(16)),
-                        padding: const EdgeInsets.all(4),
-                        width: double.infinity,
-                        height: 120,
-                        child: Row(
-                          children: [
-                            Container(
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Image.asset('assets/images/logo.png')),
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                // color: Colors.amber,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      'Product Title',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 4.0),
-                                      child: Text('Brand: Name'),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text(
-                                          'Price: 3000৳',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                                shape: StadiumBorder()),
-                                            onPressed: () {},
-                                            child: Text(
-                                              'Buy now',
-                                              style: TextStyle(fontSize: 11),
-                                            ))
-                                      ],
-                                    )
-                                  ],
+              child: items.isEmpty
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ListView.separated(
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DetailsPage(
+                                          item: items[index],
+                                        )));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.all(8),
+                            width: double.infinity,
+                            height: 120,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 100,
+                                  height: double.infinity,
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Image.network(
+                                    items[index]['image'],
+                                    fit: BoxFit.fitHeight,
+                                  ),
                                 ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(
-                      height: 10,
-                    );
-                  },
-                  itemCount: 10),
+                                Expanded(
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8),
+                                    // color: Colors.amber,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          items[index]['title'],
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 4.0),
+                                          child: Text(
+                                              'Catagory: ${items[index]['title']}'),
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Price: ${items[index]['price']}৳',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    shape: StadiumBorder()),
+                                                onPressed: () {
+                                                  saveToCart(index);
+                                                  showMsg(
+                                                      'Successfully added to cart!');
+                                                },
+                                                child: Text(
+                                                  'Buy now',
+                                                  style:
+                                                      TextStyle(fontSize: 11),
+                                                ))
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(
+                          height: 10,
+                        );
+                      },
+                      itemCount: items.length),
             ),
           ],
         ),
       )),
     );
+  }
+
+  getData(String collectionName) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    var data = await firestore.collection(collectionName).get();
+
+    for (var item in data.docs) {
+      setState(() {
+        items.add({
+          'catagory': item['catagory'],
+          'description': item['description'],
+          'image': item['image'],
+          'price': item['price'],
+          'rating': item['rating'],
+          'title': item['title'],
+        });
+      });
+    }
+    // print(items);
+    // print('items');
+  }
+
+  void saveToCart(int index) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    firestore.collection('users-cart').add(items[index]);
+  }
+
+  void showMsg(String msg) {
+    showDialog(
+        context: context,
+        builder: (contxt) {
+          return AlertDialog(
+            title: Text(msg),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Ok'))
+            ],
+          );
+        });
   }
 }

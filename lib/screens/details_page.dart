@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class DetailsPage extends StatefulWidget {
-  const DetailsPage({Key? key}) : super(key: key);
+  const DetailsPage({Key? key, required this.item}) : super(key: key);
+
+  final Map item;
 
   @override
   _DetailsPageState createState() => _DetailsPageState();
@@ -27,7 +29,9 @@ class _DetailsPageState extends State<DetailsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 BackButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
                 IconButton(
                   onPressed: () {
@@ -40,7 +44,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 )
               ],
             ),
-            Image.asset('assets/images/logo.png'),
+            Image.network(widget.item['image']),
             Expanded(
                 child: Container(
               padding: EdgeInsets.all(16),
@@ -50,8 +54,8 @@ class _DetailsPageState extends State<DetailsPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Product Title',
+                      Text(
+                        widget.item['title'],
                         style: TextStyle(
                             fontSize: 22, fontWeight: FontWeight.w500),
                       ),
@@ -59,19 +63,18 @@ class _DetailsPageState extends State<DetailsPage> {
                           style: OutlinedButton.styleFrom(
                               shape: const StadiumBorder()),
                           onPressed: null,
-                          child: Text('★ 4.5')),
+                          child: Text('★ ${widget.item['rating']}')),
                     ],
                   ),
-                  const Text(
-                    'Catagory: Almirah',
+                  Text(
+                    'Catagory: ${widget.item['catgory']}',
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  const Expanded(
-                    child: Text(
-                        'Training For Mobile App Development Venue RNA IT\, Rangpur Training For Mobile App Development Venue RNA IT\, Rangpur Training For Mobile App Development Venue RNA IT\, Rangpur Training For Mobile App Development Venue RNA IT\, Rangpur'),
+                  Expanded(
+                    child: Text(widget.item['description']),
                   ),
                   const SizedBox(
                     height: 15,
@@ -135,8 +138,8 @@ class _DetailsPageState extends State<DetailsPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        '৳8000',
+                      Text(
+                        '৳${widget.item['price']}',
                         style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,

@@ -1,5 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -76,7 +77,10 @@ class _SignupPageState extends State<SignupPage> {
                 height: 16,
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  userSignUp();
+                  saveUesrData();
+                },
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Text('Sign up'),
@@ -103,5 +107,32 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
     );
+  }
+
+  userSignUp() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: mailController.text, password: passwordController.text);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  saveUesrData() {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    firestore.collection('users').doc(mailController.text).set({
+      'email': mailController.text,
+      'name': userController.text,
+      'phone': phoneController.text,
+      'password': passwordController.text
+    });
+    print('method called');
   }
 }
